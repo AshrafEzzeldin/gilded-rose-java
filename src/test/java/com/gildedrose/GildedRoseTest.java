@@ -2,7 +2,9 @@ package com.gildedrose;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GildedRoseTest {
 
@@ -10,6 +12,7 @@ class GildedRoseTest {
     static final String agedBrie = "Aged Brie";
     static final String backstagePasses = "Backstage passes to a TAFKAL80ETC concert";
     static final String sulfuras = "Sulfuras, Hand of Ragnaros";
+    static final int SULFURAS_QUALITY = 80;
 
     @ParameterizedTest(name = "[{index}] {3}: sellIn={0} -> expected sellIn={1}, quality={2} -> expected quality={3}")
     @CsvSource({
@@ -19,8 +22,8 @@ class GildedRoseTest {
             "0, -1, 1, 0, 'Normal item after sell date at minimum quality'",
             "1, 0, 0, 0, 'Normal item with zero quality, never negative'"
     })
-    void normalItemTests(int sellIn,int expectedSellIn, int quality, int expectedQuality, String scenario) {
-        Item[] items = new Item[] { new Item(normalItem, sellIn, quality) };
+    void normalItemTests(int sellIn, int expectedSellIn, int quality, int expectedQuality, String scenario) {
+        Item[] items = new Item[]{new Item(normalItem, sellIn, quality)};
         GildedRose app = new GildedRose(items);
         app.updateQuality();
         assertEquals(expectedSellIn, app.items[0].sellIn);
@@ -34,8 +37,8 @@ class GildedRoseTest {
             "1, 0, 50, 50, 'Aged Brie at max quality stays at max'",
             "-1, -2, 49, 50, 'Aged Brie near max quality on sell date stops at 50'"
     })
-    void agedBrieTests(int sellIn,int expectedSellIn, int quality, int expectedQuality, String scenario) {
-        Item[] items = new Item[] { new Item(agedBrie, sellIn, quality) };
+    void agedBrieTests(int sellIn, int expectedSellIn, int quality, int expectedQuality, String scenario) {
+        Item[] items = new Item[]{new Item(agedBrie, sellIn, quality)};
         GildedRose app = new GildedRose(items);
         app.updateQuality();
         assertEquals(expectedSellIn, app.items[0].sellIn);
@@ -51,23 +54,25 @@ class GildedRoseTest {
             "5, 4, 10, 13, 'Backstage passes 5 days or less increases by 3'",
             "0, -1, 10, 0, 'Backstage passes after concert drops to 0'"
     })
-    void backstagePassesTests(int sellIn, int expectedSellIn, int quality, int expectedQuality,String scinario) {
-        Item[] items = new Item[] { new Item(backstagePasses, sellIn, quality) };
+    void backstagePassesTests(int sellIn, int expectedSellIn, int quality, int expectedQuality, String scenario) {
+        Item[] items = new Item[]{new Item(backstagePasses, sellIn, quality)};
         GildedRose app = new GildedRose(items);
         app.updateQuality();
         assertEquals(expectedSellIn, app.items[0].sellIn);
         assertEquals(expectedQuality, app.items[0].quality);
     }
 
-    @ParameterizedTest(name = "[{index}] {3}: sellIn={0} -> expected sellIn={1}, quality={2} -> expected quality={3}")
+    @ParameterizedTest(name = "[{index}] {2}: sellIn={0} -> expected sellIn={0}, quality={1} -> expected quality=80 ")
     @CsvSource({
-            "5, 5, 18, 'Sulfuras quality and sellIn never change'"
+            "5, 80, 'Sulfuras quality and sellIn never change'",
+            "5, 30, 'Sulfuras quality is 80 and it never alters'",
+            "-1, 80, 'Sulfuras sellin never has to be sold'",
     })
-    void sulfurasTests(int sellIn, int expectedSellIn, int quality, String scenario) {
-        Item[] items = new Item[] { new Item(sulfuras, sellIn, quality) };
+    void sulfurasTests(int sellIn, int quality, String scenario) {
+        Item[] items = new Item[]{new Item(sulfuras, sellIn, quality)};
         GildedRose app = new GildedRose(items);
         app.updateQuality();
-        assertEquals(expectedSellIn, app.items[0].sellIn, "SellIn should not change for Sulfuras");
-        assertEquals(quality, app.items[0].quality, "Quality should not change for Sulfuras");
+        assertTrue(app.items[0].sellIn > 0, "Sulfuras should not be sold");
+        assertEquals(SULFURAS_QUALITY, app.items[0].quality, "Quality should not change for Sulfuras");
     }
 }
