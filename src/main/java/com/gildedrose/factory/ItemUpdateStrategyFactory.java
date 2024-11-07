@@ -13,6 +13,8 @@ public class ItemUpdateStrategyFactory {
                 return new BackstagePassStrategy();
             case ItemConstants.sulfuras:
                 return new SulfurasStrategy();
+            case ItemConstants.conjured:
+                return new ConjuredStrategy();
             default:
                 return new NormalItemStrategy();
         }

@@ -12,6 +12,7 @@ class GildedRoseTest {
     static final String agedBrie = "Aged Brie";
     static final String backstagePasses = "Backstage passes to a TAFKAL80ETC concert";
     static final String sulfuras = "Sulfuras, Hand of Ragnaros";
+    static final String conjured = "Conjured";
     static final int SULFURAS_QUALITY = 80;
 
     @ParameterizedTest(name = "[{index}] {3}: sellIn={0} -> expected sellIn={1}, quality={2} -> expected quality={3}")
@@ -75,4 +76,20 @@ class GildedRoseTest {
         assertTrue(app.items[0].sellIn > 0, "Sulfuras should not be sold");
         assertEquals(SULFURAS_QUALITY, app.items[0].quality, "Quality should not change for Sulfuras");
     }
+
+    @ParameterizedTest(name = "[{index}] {3}: sellIn={0} -> expected sellIn={1}, quality={2} -> expected quality={3}")
+    @CsvSource({
+            // Normal item tests
+            "2, 1, 5, 3, 'conjured item before sell date'",
+            "0, -1, 5, 1, 'conjured item after sell date'",
+            "1, 0, 0, 0, 'conjured item with zero quality, never negative'"
+    })
+    void conjuredTests(int sellIn, int expectedSellIn, int quality, int expectedQuality, String scenario) {
+        Item[] items = new Item[]{new Item(conjured, sellIn, quality)};
+        GildedRose app = new GildedRose(items);
+        app.updateQuality();
+        assertEquals(expectedSellIn, app.items[0].sellIn);
+        assertEquals(expectedQuality, app.items[0].quality);
+    }
+
 }
