@@ -12,7 +12,6 @@ public class NormalItemStrategy implements ItemUpdateStrategy {
         }
         item.sellIn--;
         handleExpiredNormalItem(item);
-
     }
 
     private void handleExpiredNormalItem(Item item) {
